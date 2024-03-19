@@ -141,8 +141,9 @@ contract MinterTest is Test {
     }
 
     function testWithdraw(address treasury, uint128 amount) public {
+        vm.assume(treasury != address(0));
         Minter minter = new Minter(address(blastpunks), treasury, bytes32(0));
-        vm.assume(treasury != address(0) && payable(treasury).send(0));
+        vm.assume(payable(treasury).send(0));
         blastpunks.transferOwnership(address(minter));
         vm.deal(address(minter), amount);
         vm.startPrank(treasury);
