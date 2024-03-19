@@ -17,14 +17,16 @@ contract Minter is IMinter, Ownable {
     constructor(address _blastpunks, address treasury, bytes32 _root) Ownable(treasury) {
         blastpunks = _blastpunks;
         root = _root;
-
-        for (uint256 i = 0; i < 3000; i++) {
-            availableToMint.push(i);
-        }
     }
 
     function available() external view returns (uint256) {
         return availableToMint.length;
+    }
+
+    function chunk(uint256 from, uint256 to) external onlyOwner {
+        for (uint256 i = from; i < to; i++) {
+            availableToMint.push(i);
+        }
     }
 
     function mint(Tier tier, uint256 amount, bytes32[] memory proof) external payable {

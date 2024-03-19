@@ -17,8 +17,16 @@ contract MinterTest is Test {
 
     function setUp() public {}
 
+    function testChunk(address deployer, bytes32 root) public returns (Minter minter) {
+        vm.assume(deployer != address(0));
+        vm.startPrank(deployer);
+        minter = new Minter(address(blastpunks), address(deployer), root);
+        minter.chunk(0, 3000);
+        vm.stopPrank();
+    }
+
     function testAvailable() public {
-        Minter minter = new Minter(address(blastpunks), address(1), bytes32(0));
+        Minter minter = testChunk(address(1), bytes32(0));
         assertEq(minter.available(), 3000);
     }
 
@@ -52,7 +60,7 @@ contract MinterTest is Test {
         returns (Minter, IMinter.Tier, address, bytes32[] memory)
     {
         (bytes32 root, address[] memory values, bytes32[] memory leaves) = testMerkle(addresses);
-        Minter minter = new Minter(address(blastpunks), address(1), root);
+        Minter minter = testChunk(address(1), root);
         blastpunks.transferOwnership(address(minter));
 
         uint256 index = entropy % values.length;
@@ -132,8 +140,8 @@ contract MinterTest is Test {
     }
 
     function testOwnership(address treasury, address newOwner) public {
-        vm.assume(treasury != address(0));
-        Minter minter = new Minter(address(blastpunks), treasury, bytes32(0));
+        vm.assume(treasury != address(0) && newOwner != address(0));
+        Minter minter = testChunk(treasury, bytes32(0));
         blastpunks.transferOwnership(address(minter));
         vm.startPrank(treasury);
         minter.ownership(newOwner);
@@ -142,7 +150,7 @@ contract MinterTest is Test {
 
     function testWithdraw(address treasury, uint128 amount) public {
         vm.assume(treasury != address(0));
-        Minter minter = new Minter(address(blastpunks), treasury, bytes32(0));
+        Minter minter = testChunk(treasury, bytes32(0));
         vm.assume(payable(treasury).send(0));
         blastpunks.transferOwnership(address(minter));
         vm.deal(address(minter), amount);
