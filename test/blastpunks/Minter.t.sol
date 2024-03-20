@@ -41,7 +41,7 @@ contract MinterTest is Test {
 
         for (uint256 i = 0; i < values.length; i++) {
             IMinter.Tier tier = IMinter.Tier(uint256(keccak256(abi.encode(values[i]))) % 3);
-            leaves[i] = keccak256(abi.encode(values[i], tier));
+            leaves[i] = keccak256(bytes.concat(keccak256(abi.encode(values[i], tier))));
         }
 
         Merkle tree = new Merkle();

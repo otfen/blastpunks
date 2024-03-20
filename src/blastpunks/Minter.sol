@@ -31,7 +31,7 @@ contract Minter is IMinter, Ownable {
 
     function mint(Tier tier, uint256 amount, bytes32[] memory proof) external payable {
         if (tier != Tier.Public) {
-            bytes32 leaf = keccak256(abi.encode(msg.sender, tier));
+            bytes32 leaf = keccak256(bytes.concat(keccak256(abi.encode(msg.sender, tier))));
             mints[leaf] += amount;
             if (!MerkleProof.verify(proof, root, leaf)) revert Forbidden();
             if (mints[leaf] > 5) revert LimitExceeded();
